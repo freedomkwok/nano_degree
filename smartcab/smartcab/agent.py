@@ -44,7 +44,7 @@ class LearningAgent(Agent):
             self.alpha = 0
         else:
             self.t = self.t + 1
-            self.epsilon = math.exp(-0.01 * self.t)
+            self.epsilon = math.exp(-0.005 * self.t)
 
         return None
 
@@ -121,9 +121,9 @@ class LearningAgent(Agent):
             else:
                 valid_actions = []
                 maxQ = self.get_maxQ(state)
-                for act in self.Q[state]:
-                    if maxQ == self.Q[state][act]:
-                        valid_actions.append(act)
+                for action in self.Q[state]:
+                    if maxQ == self.Q[state][action]:
+                        valid_actions.append(action)
                 return random.choice(valid_actions)
 
     def learn(self, state, action, reward):
@@ -136,8 +136,7 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
-        if self.learning:
-            self.Q[state][action] = self.Q[state][action] + self.alpha * (reward - self.Q[state][action])
+        self.Q[state][action] = self.Q[state][action] + self.alpha * (reward - self.Q[state][action])
         return
 
 
@@ -198,7 +197,7 @@ def run(learning=True, epsilon=0.5, alpha=0.6):
     sim.run(tolerance=0.05, n_test=20)
 
 def runAfterTrain():
-    run(learning=True, epsilon=0.5, alpha=0.6)
+    run(learning=True, epsilon=0.5, alpha=0.5)
 
 if __name__ == '__main__':
-    run()
+    runAfterTrain()
