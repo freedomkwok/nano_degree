@@ -196,7 +196,7 @@ def run(learning=True, epsilon=0.5, alpha=0.6):
     sim.run(tolerance=0.05, n_test=20)
 
 def runAfterTrain():
-    run(learning=True, epsilon=0.5, alpha=0.5)
+    run(learning=False, epsilon=0.5, alpha=0.5)
 
 if __name__ == '__main__':
     runAfterTrain()
