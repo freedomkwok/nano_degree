@@ -32,10 +32,11 @@ class Environment(object):
     valid_headings = [(1, 0), (0, -1), (-1, 0), (0, 1)]  # E, N, W, S
     hard_time_limit = -100  # Set a hard time limit even if deadline is not enforced.
 
-    def __init__(self, verbose=False, num_dummies=100, grid_size = (8, 6)):
+    def __init__(self, declayfnc, verbose=False, num_dummies=100, grid_size = (8, 6)):
         self.num_dummies = num_dummies  # Number of dummy driver agents in the environment
         self.verbose = verbose # If debug output should be given
 
+        self.declayfnc = declayfnc
         # Initialize simulation variables
         self.done = False
         self.t = 0
@@ -165,7 +166,7 @@ class Environment(object):
                     del positions[intersection] # Delete the intersection altogether
 
     
-            agent.reset(destination=(destination if agent is self.primary_agent else None), testing=testing)
+            agent.reset(self.declayfnc, destination=(destination if agent is self.primary_agent else None), testing=testing)
             if agent is self.primary_agent:
                 # Reset metrics for this trial (step data will be set during the step)
                 self.trial_data['testing'] = testing
@@ -418,7 +419,7 @@ class Agent(object):
         self.color = 'white'
         self.primary_agent = False
 
-    def reset(self, destination=None, testing=False):
+    def reset(self, declayfnc, destination=None, testing=False):
         pass
 
     def update(self):

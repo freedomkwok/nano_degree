@@ -25,7 +25,10 @@ class LearningAgent(Agent):
         # Set any additional class parameters as needed
         self.t = 0
 
-    def reset(self, destination=None, testing=False):
+
+
+
+    def reset(self, declayfnc, destination=None, testing=False):
         """ The reset function is called at the beginning of each trial.
             'testing' is set to True if testing trials are being used
             once training trials have completed. """
@@ -44,7 +47,7 @@ class LearningAgent(Agent):
             self.alpha = 0
         else:
             self.t = self.t + 1
-            self.epsilon = math.exp(-0.005 * self.t)
+            self.epsilon = declayfnc(self.alpha, self.t)
 
         return None
 
@@ -153,7 +156,7 @@ class LearningAgent(Agent):
         return
         
 
-def run(learning=True, epsilon=0.5, alpha=0.6):
+def run(declayfnc, learning=True, epsilon=0.5, alpha=0.5, tolerance=0.05):
     """ Driving function for running the simulation. 
         Press ESC to close the simulation, or [SPACE] to pause the simulation. """
 
@@ -163,7 +166,7 @@ def run(learning=True, epsilon=0.5, alpha=0.6):
     #   verbose     - set to True to display additional output from the simulation
     #   num_dummies - discrete number of dummy agents in the environment, default is 100
     #   grid_size   - discrete number of intersections (columns, rows), default is (8, 6)
-    env = Environment(verbose=False)
+    env = Environment(declayfnc, verbose=False)
     
     ##############
     # Create the driving agent
@@ -186,17 +189,37 @@ def run(learning=True, epsilon=0.5, alpha=0.6):
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, display=False, log_metrics=True)
+    sim = Simulator(env, declayfncname=declayfnc.__name__, update_delay=2, display=False, log_metrics=True)
     
     ##############
     # Run the simulator
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(tolerance=0.05, n_test=20)
+    sim.run(tolerance=tolerance, n_test=20)
+
 
 def runAfterTrain():
-    run(learning=False, epsilon=0.5, alpha=0.5)
+    ass = []
+    for index in range(1):
+        ass.append(random.random())
+    ass.sort()
+
+    def declayFncA(self, alpha=0.5, t=0):
+        if t == 0:
+            t = 1
+        return a**t
+    def declayFnctSqure(self, alpha=0.5, t=0):
+        return 1.0/(t**2)
+    def declayFncExpAt(self, alpha=0.5, t=0):
+        return math.exp(-a*t)
+
+    def declayFucCos(self, alpha=0.5, t=0):
+        return math.cos(a*t)
+
+    for declayfnc in [declayFncA, declayFnctSqure, declayFncExpAt, declayFucCos]:
+        for a in ass:
+            run(declayfnc, learning=True, epsilon=0.5, alpha=a, tolerance=a/10 if a > 0.5 else a/2)
 
 if __name__ == '__main__':
     runAfterTrain()
