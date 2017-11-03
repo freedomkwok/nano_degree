@@ -139,6 +139,7 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
+
         self.Q[state][action] = self.Q[state][action] + self.alpha * (reward - self.Q[state][action])
         return
 
@@ -189,7 +190,7 @@ def run(declayfnc, learning=True, epsilon=0.5, alpha=0.5, tolerance=0.05):
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, declayfncname=declayfnc.__name__, update_delay=2, display=False, log_metrics=True)
+    sim = Simulator(env, declayfncname=declayfnc.__name__, update_delay=0.001, display=False, log_metrics=True, optimized=True)
     
     ##############
     # Run the simulator
@@ -202,24 +203,32 @@ def run(declayfnc, learning=True, epsilon=0.5, alpha=0.5, tolerance=0.05):
 def runAfterTrain():
     ass = []
     for index in range(1):
-        ass.append(random.random())
+        random_alpha = 0.5;
+        while True:
+            random_alpha = random.random()
+            if random_alpha > 0.5:
+                break;
+        ass.append(random_alpha)
     ass.sort()
 
-    def declayFncA(self, alpha=0.5, t=0):
+    def declayFncA(alpha=0.5, t=0):
         if t == 0:
             t = 1
-        return a**t
-    def declayFnctSqure(self, alpha=0.5, t=0):
+        return alpha**t
+    def declayFnctSqure(alpha=0.5, t=0):
         return 1.0/(t**2)
-    def declayFncExpAt(self, alpha=0.5, t=0):
-        return math.exp(-a*t)
+    def declayFncExpAt(alpha=0.5, t=0):
+        return math.exp(-alpha*t)
 
-    def declayFucCos(self, alpha=0.5, t=0):
-        return math.cos(a*t)
+    def declayFucCos(alpha=0.5, t=0):
+        return math.cos(alpha*t)
 
-    for declayfnc in [declayFncA, declayFnctSqure, declayFncExpAt, declayFucCos]:
+    def declayExp(alpha=0.5, t=0):
+        return math.exp(-0.05*t)
+
+    for declayfnc in [declayFncA, declayFnctSqure, declayFncExpAt, declayFucCos, declayExp]:
         for a in ass:
-            run(declayfnc, learning=True, epsilon=0.5, alpha=a, tolerance=a/10 if a > 0.5 else a/2)
+            run(declayfnc, learning=True, epsilon=0.5, alpha=a, tolerance=a/20 if a <= 0.1 else a/20)
 
 if __name__ == '__main__':
     runAfterTrain()

@@ -46,6 +46,7 @@ class Simulator(object):
         self.boundary = self.colors['black']
         self.stop_color = self.colors['crimson']
 
+        self.declayfncname = declayfncname
         self.quit = False
         self.start_time = None
         self.current_time = 0.0
@@ -93,8 +94,8 @@ class Simulator(object):
             # Set log files
             if a.learning:
                 if self.optimized: # Whether the user is optimizing the parameters and decay functions
-                    self.log_filename = os.path.join("logs", declayfncname.__name__ + "sim_improved-learning.csv")
-                    self.table_filename = os.path.join("logs", declayfncname.__name__ + "sim_improved-learning.txt")
+                    self.log_filename = os.path.join("logs", self.declayfncname + "_sim_improved-learning.csv")
+                    self.table_filename = os.path.join("logs", self.declayfncname + "_sim_improved-learning.txt")
                 else: 
                     self.log_filename = os.path.join("logs", "sim_default-learning.csv")
                     self.table_filename = os.path.join("logs","sim_default-learning.txt")
@@ -130,7 +131,7 @@ class Simulator(object):
 
             # Flip testing switch
             if not testing:
-                if total_trials > 20 and total_trials < 620: # Must complete minimum 20 training trials
+                if total_trials > 20: # Must complete minimum 20 training trials
                     if a.learning:
                         if a.epsilon < tolerance: # assumes epsilon decays to 0
                             testing = True
@@ -184,7 +185,7 @@ class Simulator(object):
                         self.last_updated = self.current_time
                     
                     # Render text
-                    self.render_text(a.epsilon, testing, success/total_trials, total_trials, tolerance)
+                    self.render_text(trial, self.declayfncname, a.epsilon, testing, success/total_trials, total_trials, tolerance)
 
                     # Render GUI and sleep
                     if self.display:
@@ -251,7 +252,7 @@ class Simulator(object):
         if self.display:
             self.pygame.display.quit()  # shut down pygame
 
-    def render_text(self, epsilon=0.0, testing=False, success=0.0, total_trials=0.0, tolerance=''):
+    def render_text(self, trial, declayfncname='', epsilon=0.0, testing=False, success=0.0, total_trials=0.0, tolerance=''):
         """ This is the non-GUI render display of the simulation. 
             Simulated trial data will be rendered in the terminal/command prompt. """
 
@@ -260,7 +261,7 @@ class Simulator(object):
 
             # Previous State
             if status['state']:
-                print "Agent previous state: {} success:{} total_trials: {} epsilon: {} tolerance: {}".format(status['state'], success, total_trials, epsilon, tolerance)
+                print "Agent previous state: {} success:{} total_trials: {} epsilon: {} tolerance: {} {} ".format(status['state'], success, total_trials, epsilon, tolerance, declayfncname)
             else:
                 print "!! Agent state not been updated!"
 
