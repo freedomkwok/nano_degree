@@ -47,7 +47,7 @@ class LearningAgent(Agent):
             self.alpha = 0
         else:
             self.t = self.t + 1
-            self.epsilon = declayfnc(self.alpha, self.t)
+            self.epsilon = declayfnc(self.alpha, self.t) if declayfnc is not None else math.exp(-0.005 * self.t)
 
         return None
 
@@ -190,7 +190,8 @@ def run(declayfnc, learning=True, epsilon=0.5, alpha=0.5, tolerance=0.05):
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, declayfncname=declayfnc.__name__, update_delay=0.001, display=False, log_metrics=True, optimized=True)
+    name = declayfnc.__name__ if declayfnc is not None else "default_"
+    sim = Simulator(env, declayfncname=name, update_delay=0.001, display=False, log_metrics=True, optimized=True)
     
     ##############
     # Run the simulator
@@ -206,7 +207,7 @@ def runAfterTrain():
         random_alpha = 0.5;
         while True:
             random_alpha = random.random()
-            if random_alpha > 0.5:
+            if random_alpha > 0.3:
                 break;
         ass.append(random_alpha)
     ass.sort()
@@ -216,6 +217,8 @@ def runAfterTrain():
             t = 1
         return alpha**t
     def declayFnctSqure(alpha=0.5, t=0):
+        if t == 0:
+            t = 1
         return 1.0/(t**2)
     def declayFncExpAt(alpha=0.5, t=0):
         return math.exp(-alpha*t)
@@ -223,12 +226,14 @@ def runAfterTrain():
     def declayFucCos(alpha=0.5, t=0):
         return math.cos(alpha*t)
 
-    def declayExp(alpha=0.5, t=0):
-        return math.exp(-0.05*t)
 
-    for declayfnc in [declayFncA, declayFnctSqure, declayFncExpAt, declayFucCos, declayExp]:
+
+    for declayfnc in [declayFncA, declayFnctSqure, declayFncExpAt, declayFucCos, None]:
         for a in ass:
-            run(declayfnc, learning=True, epsilon=0.5, alpha=a, tolerance=a/20 if a <= 0.1 else a/20)
+            run(declayfnc, learning=True, epsilon=0.5, alpha=a, tolerance= a/100 if declayFncA is not None else 0.03)
+
+def normal_run():
+    run(declayfnc=None, learning=True, epsilon=0.5, alpha=0.8, tolerance=0.03)
 
 if __name__ == '__main__':
     runAfterTrain()
