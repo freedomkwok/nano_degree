@@ -45,9 +45,10 @@ class LearningAgent(Agent):
         if testing:
             self.epsilon = 0
             self.alpha = 0
-        else:
+
+        elif self.learning:
             self.t = self.t + 1
-            self.epsilon = declayfnc(self.alpha, self.t) if declayfnc is not None else math.exp(-0.005 * self.t)
+            self.epsilon = declayfnc(self.alpha, self.t, self.epsilon) if declayfnc is not None else math.exp(-0.005 * self.t)
 
         return None
 
@@ -139,6 +140,7 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
+        # 1 - (1/(1+math.exp(-k*self.alpha*(self.trial_count-t0))))
 
         self.Q[state][action] = self.Q[state][action] + self.alpha * (reward - self.Q[state][action])
         return
@@ -198,42 +200,44 @@ def run(declayfnc, learning=True, epsilon=0.5, alpha=0.5, tolerance=0.05):
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(tolerance=tolerance, n_test=20)
+    sim.run(tolerance=tolerance, n_test=10)
 
 
 def runAfterTrain():
-    ass = []
-    for index in range(1):
-        random_alpha = 0.5;
-        while True:
-            random_alpha = random.random()
-            if random_alpha > 0.3:
-                break;
-        ass.append(random_alpha)
-    ass.sort()
+    # ass = []
+    # for index in range(1):
+    #     random_alpha = 0.5;
+    #     while True:
+    #         random_alpha = random.random()
+    #         if random_alpha > 0.3:
+    #             break;
+    #     ass.append(random_alpha)
+    # ass.sort()
 
-    def declayFncA(alpha=0.5, t=0):
+    def linearDeclay(alpha=0.5, t=0, epsilon=0.5):
+        return epsilon - 0.05
+
+    def declayFncA(alpha=0.5, t=0, epsilon=0.5):
         if t == 0:
             t = 1
         return alpha**t
-    def declayFnctSqure(alpha=0.5, t=0):
+    def declayFnctSqure(alpha=0.5, t=0, epsilon=0.5):
         if t == 0:
             t = 1
         return 1.0/(t**2)
-    def declayFncExpAt(alpha=0.5, t=0):
+    def declayFncExpAt(alpha=0.5, t=0, epsilon=0.5):
         return math.exp(-alpha*t)
 
-    def declayFucCos(alpha=0.5, t=0):
+    def declayFucCos(alpha=0.5, t=0, epsilon=0.5):
         return math.cos(alpha*t)
 
 
-
-    for declayfnc in [declayFncA, declayFnctSqure, declayFncExpAt, declayFucCos, None]:
-        for a in ass:
-            run(declayfnc, learning=True, epsilon=0.5, alpha=a, tolerance= a/100 if declayFncA is not None else 0.03)
+    for declayfnc in [linearDeclay, None, declayFncA, declayFnctSqure, declayFncExpAt, declayFucCos]:
+        #for a in ass:
+            run(declayfnc, learning=True, epsilon=1, alpha=0.5, tolerance=0.05)
 
 def normal_run():
-    run(declayfnc=None, learning=True, epsilon=0.5, alpha=0.8, tolerance=0.03)
+    run(declayfnc=None, learning=False, epsilon=0.5, alpha=0.5, tolerance=0.05)
 
 if __name__ == '__main__':
     runAfterTrain()
