@@ -3,6 +3,8 @@ import math
 from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
+from sets import Set
+from random import choice
 
 class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
@@ -46,6 +48,7 @@ class LearningAgent(Agent):
             self.epsilon = 0
             self.alpha = 0
 
+        #1 - (1/(1+math.exp(-k*self.alpha*(self.trial_count-t0))))
         elif self.learning:
             self.t = self.t + 1
             self.epsilon = declayfnc(self.alpha, self.t, self.epsilon) if declayfnc is not None else math.exp(-0.005 * self.t)
@@ -96,8 +99,8 @@ class LearningAgent(Agent):
         # When learning, check if the 'state' is not in the Q-table
         # If it is not, create a new dictionary for that state
         #   Then, for each action available, set the initial Q-value to 0.0
-
-        self.Q[state] = self.Q.get(state, {None: 0.0, 'forward': 0.0, 'left': 0.0, 'right': 0.0})
+        if self.learning:
+            self.Q[state] = self.Q.get(state, {None: 0.0, 'forward': 0.0, 'left': 0.0, 'right': 0.0})
         print('self:Q', len(self.Q), " \n ")
         return
 
@@ -110,6 +113,18 @@ class LearningAgent(Agent):
         self.state = state
         self.next_waypoint = self.planner.next_waypoint()
 
+        def chance_of_visiting_all_states(iterations, k, n=24):
+            r = range(n)
+            total = 0
+            for i in range(iterations):
+                s = Set()
+                for j in range(k):
+                    s.add(choice(r))
+                    if len(s) == n:
+                        total += 1
+                        break
+            return float(total) / iterations
+
         ########### 
         ## TO DO ##
         ###########
@@ -121,6 +136,7 @@ class LearningAgent(Agent):
             return random.choice(self.valid_actions)
         else:
             if self.epsilon > random.random():
+
                 return random.choice(self.valid_actions)
             else:
                 valid_actions = []
@@ -140,9 +156,10 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
-        # 1 - (1/(1+math.exp(-k*self.alpha*(self.trial_count-t0))))
+        #
 
-        self.Q[state][action] = self.Q[state][action] + self.alpha * (reward - self.Q[state][action])
+        if self.learning:
+            self.Q[state][action] = self.Q[state][action] + self.alpha * (reward - self.Q[state][action])
         return
 
 
@@ -231,10 +248,10 @@ def runAfterTrain():
     def declayFucCos(alpha=0.5, t=0, epsilon=0.5):
         return math.cos(alpha*t)
 
-
-    for declayfnc in [linearDeclay, None, declayFncA, declayFnctSqure, declayFncExpAt, declayFucCos]:
+    #for declayfnc in [linearDeclay, None, declayFncA, declayFnctSqure, declayFncExpAt, declayFucCos]:
+    for declayfnc in [None]:
         #for a in ass:
-            run(declayfnc, learning=True, epsilon=1, alpha=0.5, tolerance=0.05)
+            run(declayfnc, learning=True, epsilon=1, alpha=0.6, tolerance=0.01)
 
 def normal_run():
     run(declayfnc=None, learning=False, epsilon=0.5, alpha=0.5, tolerance=0.05)
