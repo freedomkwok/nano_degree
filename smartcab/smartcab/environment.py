@@ -336,12 +336,11 @@ class Environment(object):
             elif light == 'green' and action != 'forward':
                 reward += 1 - penalty  # (1, 0)
             elif light != 'green' and agent.get_next_waypoint() == 'right':
-
                 # valid action but incorrect (idling at red light, when we should have gone right on red)
                 if action == None:
                     reward += 1 - penalty # (1, 0)
-            elif action == 'right':
-                    reward += 2 - penalty  # (2, 1)
+                elif action == 'right':
+                        reward += 2 - penalty  # (2, 1)
 
             elif action == None and light != 'green': # Was the agent stuck at a red light?
                 reward += 2 - penalty # (2, 1)
