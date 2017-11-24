@@ -1,4 +1,10 @@
 conda env create -f requirements/aind-dog-windows.yml
+
+cd C:\Users\freed\havardclass\Udacity Nano\projects\dog-project
  activate aind-dog
  set KERAS_BACKEND=tensorflow
  python -c "from keras import backend"
+ jupyter notebook dog_app.ipynb
+ 
+ from tensorflow.python.client import device_lib
+print(device_lib.list_local_devices())
